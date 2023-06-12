@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gulls and Us</title>
+    <link rel="icon" type="image/x-icon" href="static/src/images/Gulls-and-us-icon.png">
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <link rel="stylesheet" href="static/style.css">
+    <script src="static/src/header.js"></script>
+    <script src="static/src/homePage.js"></script>
+    <script src="static/src/prodPage.js"></script>
+    <script src="static/src/cartAside.js"></script>
+    <script src="static/src/loginPage.js"></script>
+    <script src="static/src/signupPage.js"></script>
+    <script src="static/src/cartPage.js"></script>
+    <script src="static/src/adminPage.js"></script>
+    <script src="https://unpkg.com/vue@3"></script>
+    <script src="https://unpkg.com/vue-router@4.0.15/dist/vue-router.global.js"></script>
+</head>
+
+<body>
+    <div id="app">
+        <header>
+            <store-header v-bind:user="user" v-on:logout="logout"></store-header>
+        </header>
+        <main>
+            <router-view v-on:login="saveUser" v-on:update-cart="fetchCart" v-bind:user="user"
+                v-bind:cart="cart"></router-view>
+        </main>
+        <footer>
+            <span>Email: <a href="mailto: info@gullsandus.com">info@gullsandus.com</a><br/>Phone: +1 (555) 123-4567</span>
+        </footer>
+    </div>
+    <script>
+        const app = Vue.createApp({
+            data: function () {
+                return {
+                    user: null,
+                    cart: []
+                }
+            },
+            created: async function () {
+                let response = await fetch("/check_login")
+                if (response.status == 200) {
+                    this.fetchCart()
+                    let result = await response.json()
+                    if (result.userid) {
+                        this.user = result
+                    } else {
+                        this.user = null
+                    }
+                }
+            },
+            methods: {
+                saveUser: function (user) {
+                    this.user = user
+                },
+                fetchCart: async function () {
+                    let response = await fetch("/cart")
+                    if (response.status == 200) {
+                        this.cart = await response.json()
+                    }
+                },
+                logout: function () {
+                    this.user = null
+                    this.fetchCart()
+                }
+            }
+        })
+
+
+        app.component('store-header', storeHeader)
+        app.component('cart-aside', cartAside)
+
+        const routes = [
+            { path: "/", component: homePage },
+            { path: "/product/:id", name: "prodPage", component: prodPage },
+            { path: "/search/:kword", name: "searchPage", component: homePage },
+            { path: "/login", name: "loginPage", component: loginPage },
+            { path: "/signup", name: "signupPage", component: signupPage },
+            { path: "/cart", name: "cartPage", component: cartPage },
+            { path: "/admin", name: "adminPage", component: adminPage }
+        ]
+        const router = VueRouter.createRouter({
+            history: VueRouter.createWebHashHistory(),
+            routes,
+        })
+
+        app.use(router)
+        app.config.warnHandler = function (msg, vm, trace) {
+            // Ignore warnings related to extraneous non-props and emits
+            if (msg.startsWith("Extraneous non-props") || msg.startsWith("Extraneous non-emits event listeners")) {
+                return
+            }
+            // Default behavior for other warnings
+            console.warn(msg, vm, trace)
+        }
+        app.mount("#app")
+    </script>
+</body>
+
+</html>
