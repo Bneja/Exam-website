@@ -257,7 +257,8 @@ def get_cart_by_id(conn, userid):
     """Get cart details by id."""
     cur = conn.cursor()
     try:
-        sql = ("SELECT * FROM cart WHERE userid = ?")
+        sql = ("SELECT * FROM cart WHERE userid = ?"
+              "ORDER BY rowid")
         cur.execute(sql, (userid,))
         cart = []
         for row in cur:
