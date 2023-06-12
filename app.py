@@ -7,7 +7,6 @@ import os
 
 app = Flask(__name__)
 app.secret_key = "soooo secret"
-app.debug = True
 app.config.update(SESSION_COOKIE_SAMESITE='Strict')
 DATABASE = r"./database.db"
 
