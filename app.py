@@ -8,7 +8,7 @@ import os
 app = Flask(__name__)
 app.secret_key = "soooo secret"
 app.config.update(SESSION_COOKIE_SAMESITE='Strict')
-DATABASE = r"./database.db"
+DATABASE = r"postgresql://Bneja:r3nC0OQdMTvy@ep-winter-tooth-901034.eu-central-1.aws.neon.tech/neondb"
 
 
 def get_db():
