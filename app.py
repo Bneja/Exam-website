@@ -5,6 +5,11 @@ import sqlite3
 from re import match
 import os
 
+import sqlalchemy as sa
+from click import echo
+from flask_sqlalchemy import SQLAlchemy
+
+
 app = Flask(__name__)
 app.secret_key = "soooo secret"
 app.config.update(SESSION_COOKIE_SAMESITE='Strict')
@@ -16,6 +21,17 @@ class Config(object):
     else:
         SQLALCHEMY_DATABASE_URI = f"sqlite:///{os.path.join(BASEDIR, 'instance', 'app.db')}"
 
+# Check if the database needs to be initialized
+engine = sa.create_engine(app.config['SQLALCHEMY_DATABASE_URI'])
+inspector = sa.inspect(engine)
+if not inspector.has_table("users"):
+    with app.app_context():
+        db.drop_all()
+        db.create_all()
+        app.logger.info('Initialized the database!')
+else:
+    app.logger.info('Database already contains the users table.')
+       
 def get_db():
     if not hasattr(g, "_database"):
         print("create connection")
