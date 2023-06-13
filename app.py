@@ -8,8 +8,13 @@ import os
 app = Flask(__name__)
 app.secret_key = "soooo secret"
 app.config.update(SESSION_COOKIE_SAMESITE='Strict')
-DATABASE = r"postgresql://Bneja:r3nC0OQdMTvy@ep-winter-tooth-901034.eu-central-1.aws.neon.tech/neondb"
-
+class Config(object):
+    # Since SQLAlchemy 1.4.x has removed support for the 'postgres://' URI scheme,
+    # update the URI to the postgres database to use the supported 'postgresql://' scheme
+    if os.getenv('DATABASE_URL'):
+        SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL').replace("postgres://", "postgresql://", 1)
+    else:
+        SQLALCHEMY_DATABASE_URI = f"sqlite:///{os.path.join(BASEDIR, 'instance', 'app.db')}"
 
 def get_db():
     if not hasattr(g, "_database"):
