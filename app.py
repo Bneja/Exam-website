@@ -5,33 +5,13 @@ import sqlite3
 from re import match
 import os
 
-import sqlalchemy as sa
-from click import echo
-from flask_sqlalchemy import SQLAlchemy
-
-
 app = Flask(__name__)
 app.secret_key = "soooo secret"
+app.debug = True
 app.config.update(SESSION_COOKIE_SAMESITE='Strict')
-class Config(object):
-    # Since SQLAlchemy 1.4.x has removed support for the 'postgres://' URI scheme,
-    # update the URI to the postgres database to use the supported 'postgresql://' scheme
-    if os.getenv('DATABASE_URL'):
-        SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL').replace("postgres://", "postgresql://", 1)
-    else:
-        SQLALCHEMY_DATABASE_URI = f"sqlite:///{os.path.join(BASEDIR, 'instance', 'app.db')}"
+DATABASE = r"./database.db"
 
-# Check if the database needs to be initialized
-engine = sa.create_engine(app.config['SQLALCHEMY_DATABASE_URI'])
-inspector = sa.inspect(engine)
-if not inspector.has_table("users"):
-    with app.app_context():
-        db.drop_all()
-        db.create_all()
-        app.logger.info('Initialized the database!')
-else:
-    app.logger.info('Database already contains the users table.')
-       
+
 def get_db():
     if not hasattr(g, "_database"):
         print("create connection")
